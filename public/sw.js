@@ -9,12 +9,17 @@ const ASSETS_TO_CACHE = [
   '/icon-512.jpg'
 ];
 
-// Install Event - Pre-cache essential shells
+// Install Event - Pre-cache essential shells resiliently
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[Service Worker] Pre-caching offline shell');
-      return cache.addAll(ASSETS_TO_CACHE);
+      const cachePromises = ASSETS_TO_CACHE.map((asset) => {
+        return cache.add(asset).catch((err) => {
+          console.warn(`[Service Worker] Failed to pre-cache ${asset}:`, err);
+        });
+      });
+      return Promise.all(cachePromises);
     }).then(() => self.skipWaiting())
   );
 });
