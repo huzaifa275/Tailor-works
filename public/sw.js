@@ -5,8 +5,9 @@ const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  '/maskable-icon.png',
-  '/icon-512.jpg'
+  '/maskable-icon-512.png',
+  '/apple-touch-icon.png',
+  '/favicon.ico'
 ];
 
 // Install Event - Pre-cache essential shells resiliently
