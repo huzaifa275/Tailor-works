@@ -2,21 +2,40 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, Edit, Trash2, Calendar, Phone, Clock, 
-  CircleDollarSign, FileText, CheckCircle, Scissors, AlertTriangle, CheckSquare, Sparkles
+  CircleDollarSign, FileText, CheckCircle, Scissors, AlertTriangle, CheckSquare, Sparkles,
+  Plus, History
 } from 'lucide-react';
 import { Customer, OrderStatus, Measurements } from '../types';
 
 interface CustomerProfileProps {
   customer: Customer;
+  allCustomers: Customer[];
   onEditClick: (customer: Customer) => void;
   onDeleteClick: (id: string) => void;
   onCompleteClick: (id: string) => void;
   onBackClick: () => void;
+  onReorderClick: (customer: Customer) => void;
+  onViewOrderClick: (id: string) => void;
 }
 
-export default function CustomerProfile({ customer, onEditClick, onDeleteClick, onCompleteClick, onBackClick }: CustomerProfileProps) {
+export default function CustomerProfile({ 
+  customer, 
+  allCustomers, 
+  onEditClick, 
+  onDeleteClick, 
+  onCompleteClick, 
+  onBackClick,
+  onReorderClick,
+  onViewOrderClick
+}: CustomerProfileProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
+  const [showPreviousOrdersModal, setShowPreviousOrdersModal] = useState(false);
+
+  const previousCompletedOrders = (allCustomers || []).filter(c => 
+    c.mobile === customer.mobile && 
+    c.status === OrderStatus.COMPLETED
+  );
 
   const handleDeleteConfirm = () => {
     onDeleteClick(customer.id);
@@ -91,6 +110,15 @@ export default function CustomerProfile({ customer, onEditClick, onDeleteClick, 
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => onReorderClick(customer)}
+            className="flex items-center gap-1.5 bg-amber-400 hover:bg-amber-500 text-slate-900 font-display text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all active:scale-95 shadow-md border border-amber-300"
+            id="profile-reorder-btn"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Create New Order / نیا آرڈر</span>
+          </button>
+
           {customer.status !== OrderStatus.COMPLETED && (
             <button
               onClick={() => setShowCompleteConfirm(true)}
@@ -140,6 +168,16 @@ export default function CustomerProfile({ customer, onEditClick, onDeleteClick, 
               <span>Booked: {new Date(customer.date).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })} ({customer.date})</span>
             </span>
           </div>
+          {previousCompletedOrders.length > 0 && (
+            <button
+              onClick={() => setShowPreviousOrdersModal(true)}
+              className="mt-3.5 flex items-center gap-1.5 bg-emerald-950/60 hover:bg-emerald-950 border border-emerald-800/80 text-amber-300 hover:text-white px-3 py-1.5 rounded-xl transition-all text-xs font-semibold font-display active:scale-95 shadow-sm"
+              id="profile-prev-orders-badge"
+            >
+              <History className="w-3.5 h-3.5 text-amber-300" />
+              <span>Previous Orders / سابقہ آرڈرز: <strong className="text-white font-extrabold">{previousCompletedOrders.length}</strong></span>
+            </button>
+          )}
         </div>
 
         {customer.status === OrderStatus.COMPLETED && customer.completedAt ? (
@@ -403,6 +441,81 @@ export default function CustomerProfile({ customer, onEditClick, onDeleteClick, 
                   id="modal-confirm-btn"
                 >
                   Yes, Delete Customer
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Previous Completed Orders Modal */}
+        {showPreviousOrdersModal && (
+          <div className="fixed inset-0 bg-slate-900/65 flex items-center justify-center p-4 z-50 backdrop-blur-sm" id="prev-orders-modal-overlay">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100 flex flex-col max-h-[80vh] overflow-hidden"
+              id="prev-orders-modal-box"
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 shrink-0">
+                <div className="flex items-center gap-2 text-emerald-900">
+                  <History className="w-5 h-5 text-emerald-800" />
+                  <h3 className="font-display font-bold text-lg">Previous Orders / سابقہ آرڈرز</h3>
+                </div>
+                <span className="text-xs bg-emerald-50 text-emerald-800 font-bold px-2.5 py-1 rounded-full">({previousCompletedOrders.length})</span>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1" id="prev-orders-list">
+                {previousCompletedOrders.map((order, idx) => (
+                  <div 
+                    key={order.id} 
+                    className={`p-4 rounded-xl border transition-all flex items-center justify-between gap-4 ${
+                      order.id === customer.id 
+                        ? 'bg-emerald-50/55 border-emerald-200/80 shadow-inner' 
+                        : 'bg-slate-50 hover:bg-slate-100 border-slate-150'
+                    }`}
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-700">Order #{previousCompletedOrders.length - idx}</span>
+                        {order.id === customer.id && (
+                          <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">Active Viewed</span>
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-500 space-y-0.5">
+                        <p>Booked: {new Date(order.date).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                        {order.completedAt && (
+                          <p className="text-teal-600 font-medium">Completed: {new Date(order.completedAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                        )}
+                        <p className="font-extrabold text-slate-700 mt-1">Price: Rs. {order.totalPrice.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        setShowPreviousOrdersModal(false);
+                        onViewOrderClick(order.id);
+                      }}
+                      disabled={order.id === customer.id}
+                      className={`px-3 py-1.5 rounded-lg font-display text-xs font-bold transition-all flex items-center gap-1 active:scale-95 ${
+                        order.id === customer.id 
+                          ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-transparent' 
+                          : 'bg-emerald-850 hover:bg-emerald-900 text-amber-300 shadow-sm border border-emerald-800'
+                      }`}
+                    >
+                      <span>View</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-5 pt-3 border-t border-slate-100 flex justify-end shrink-0">
+                <button
+                  onClick={() => setShowPreviousOrdersModal(false)}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors font-display text-xs font-bold active:scale-95"
+                  id="prev-orders-close-btn"
+                >
+                  Close / بند کریں
                 </button>
               </div>
             </motion.div>

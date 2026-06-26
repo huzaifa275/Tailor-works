@@ -1,24 +1,78 @@
 {
-  "short_name": "Darzi Ledger",
+  "id": "/?source=pwa",
   "name": "Darzi Ledger - Tailor Management System",
+  "short_name": "Darzi Ledger",
   "description": "A modern, professional, mobile-first Tailor Management Web App for Pakistani tailoring shops.",
-  "icons": [
-    {
-      "src": "icon-512.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    }
+  "categories": [
+    "business",
+    "utilities"
   ],
-  "start_url": "/",
+  "prefer_related_applications": false,
+  "start_url": "/?source=pwa",
+  "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#064e3b",
   "theme_color": "#064e3b",
-  "display": "standalone",
-  "orientation": "portrait-primary"
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Traditional Tailor Register Mobile view"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Traditional Tailor Register Desktop Dashboard view"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Customer Entry",
+      "short_name": "Add Customer",
+      "description": "Quickly record a new customer measurement and order details",
+      "url": "/?action=add-customer",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "View Active History",
+      "short_name": "History",
+      "description": "Check sewing queues, ironed-ready, and picked up clothes",
+      "url": "/?action=history",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }

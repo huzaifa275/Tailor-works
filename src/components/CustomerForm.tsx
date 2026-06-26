@@ -4,12 +4,13 @@ import { Customer, OrderStatus, Measurements } from '../types';
 
 interface CustomerFormProps {
   initialCustomer?: Customer;
+  isReorder?: boolean;
   onSave: (customerData: Omit<Customer, 'id' | 'createdAt' | 'remainingAmount'>) => void;
   onCancel: () => void;
 }
 
-export default function CustomerForm({ initialCustomer, onSave, onCancel }: CustomerFormProps) {
-  const isEditMode = !!initialCustomer;
+export default function CustomerForm({ initialCustomer, isReorder = false, onSave, onCancel }: CustomerFormProps) {
+  const isEditMode = !!initialCustomer && !isReorder;
 
   // General Fields
   const [name, setName] = useState('');
@@ -61,12 +62,28 @@ export default function CustomerForm({ initialCustomer, onSave, onCancel }: Cust
   });
   const [status, setStatus] = useState<OrderStatus>(OrderStatus.PENDING);
 
-  // Load initial data if editing
+  // Load initial data if editing or reordering
   useEffect(() => {
     if (initialCustomer) {
       setName(initialCustomer.name);
       setMobile(initialCustomer.mobile);
-      setDate(initialCustomer.date);
+      
+      if (isReorder) {
+        setDate(new Date().toISOString().split('T')[0]);
+        setTotalPrice(0);
+        setAdvancePayment(0);
+        const defaultDelivery = new Date();
+        defaultDelivery.setDate(defaultDelivery.getDate() + 7);
+        setDeliveryDate(defaultDelivery.toISOString().split('T')[0]);
+        setStatus(OrderStatus.PENDING);
+      } else {
+        setDate(initialCustomer.date);
+        setTotalPrice(initialCustomer.totalPrice || 0);
+        setAdvancePayment(initialCustomer.advancePayment || 0);
+        setDeliveryDate(initialCustomer.deliveryDate);
+        setStatus(initialCustomer.status);
+      }
+
       setMeasurements({
         qameezLength: initialCustomer.measurements.qameezLength || '',
         shoulder: initialCustomer.measurements.shoulder || '',
@@ -94,12 +111,8 @@ export default function CustomerForm({ initialCustomer, onSave, onCancel }: Cust
         stitchingStep: initialCustomer.measurements.stitchingStep || ''
       });
       setAdditionalNotes(initialCustomer.additionalNotes || '');
-      setTotalPrice(initialCustomer.totalPrice || 0);
-      setAdvancePayment(initialCustomer.advancePayment || 0);
-      setDeliveryDate(initialCustomer.deliveryDate);
-      setStatus(initialCustomer.status);
     }
-  }, [initialCustomer]);
+  }, [initialCustomer, isReorder]);
 
   // Auto calculate remaining amount
   const remainingAmount = Math.max(0, totalPrice - advancePayment);
@@ -219,7 +232,13 @@ export default function CustomerForm({ initialCustomer, onSave, onCancel }: Cust
           <div>
             <h2 className="font-display font-bold text-white text-lg sm:text-xl flex items-center gap-2">
               <Scissors className="w-5 h-5 text-amber-300" />
-              <span>{isEditMode ? 'Edit Register Entry / کھاتہ تبدیل کریں' : 'Traditional Darzi Register / درزی کھاتہ اندراج'}</span>
+              <span>
+                {isEditMode 
+                  ? 'Edit Register Entry / کھاتہ تبدیل کریں' 
+                  : isReorder 
+                    ? 'Create Repeat Order / نیا آرڈر درج کریں' 
+                    : 'Traditional Darzi Register / درزی کھاتہ اندراج'}
+              </span>
             </h2>
             <p className="text-xs text-emerald-100/80 mt-0.5">
               Traditional Pakistani Tailor Form • bilingual English & Urdu inputs with tactile large layouts
@@ -543,7 +562,13 @@ export default function CustomerForm({ initialCustomer, onSave, onCancel }: Cust
             id="form-submit-btn"
           >
             <Save className="w-4 h-4 text-amber-300" />
-            <span>{isEditMode ? 'Save Register Updates / محفوظ کریں' : 'Register Customer Entry / کھاتہ لکھیں'}</span>
+            <span>
+              {isEditMode 
+                ? 'Save Register Updates / محفوظ کریں' 
+                : isReorder 
+                  ? 'Create Repeat Order / نیا آرڈر درج کریں' 
+                  : 'Register Customer Entry / کھاتہ لکھیں'}
+            </span>
           </button>
         </div>
       </form>

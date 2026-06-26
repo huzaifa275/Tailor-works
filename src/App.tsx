@@ -64,6 +64,7 @@ export default function App() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [currentShop, setCurrentShop] = useState<ShopAccount | null>(null);
+  const [reorderCustomer, setReorderCustomer] = useState<Customer | null>(null);
 
   // Sync tab title with the custom shop name
   useEffect(() => {
@@ -127,6 +128,7 @@ export default function App() {
       shopEmail: user || undefined
     });
     refreshCustomers();
+    setReorderCustomer(null);
     setSelectedCustomerId(newCust.id);
     setView('profile');
   };
@@ -476,8 +478,18 @@ export default function App() {
 
               {view === 'add' && (
                 <CustomerForm 
+                  initialCustomer={reorderCustomer || undefined}
+                  isReorder={!!reorderCustomer}
                   onSave={handleCreateCustomer}
-                  onCancel={() => setView('dashboard')}
+                  onCancel={() => {
+                    if (reorderCustomer) {
+                      setSelectedCustomerId(reorderCustomer.id);
+                      setView('profile');
+                      setReorderCustomer(null);
+                    } else {
+                      setView('dashboard');
+                    }
+                  }}
                 />
               )}
 
@@ -492,9 +504,17 @@ export default function App() {
               {view === 'profile' && selectedCustomer && (
                 <CustomerProfile 
                   customer={selectedCustomer}
+                  allCustomers={customers}
                   onEditClick={handleEditClickFromProfile}
                   onDeleteClick={handleDeleteCustomer}
                   onCompleteClick={handleCompleteCustomer}
+                  onReorderClick={(cust) => {
+                    setReorderCustomer(cust);
+                    setView('add');
+                  }}
+                  onViewOrderClick={(id) => {
+                    setSelectedCustomerId(id);
+                  }}
                   onBackClick={() => { 
                     setView(selectedCustomer.status === OrderStatus.COMPLETED ? 'history' : 'dashboard'); 
                     setSelectedCustomerId(null); 

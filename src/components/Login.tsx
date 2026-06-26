@@ -17,8 +17,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   
   // Login State
-  const [email, setEmail] = useState('tailor@darzi.pk');
-  const [password, setPassword] = useState('darzi123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   
   // Signup State
   const [signupShopName, setSignupShopName] = useState('');
@@ -144,7 +144,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           setIsLoading(false);
           return;
         } else {
-          setError('Incorrect Super Admin password. (Hint: Huzaifa2.107)');
+          setError('Incorrect Super Admin password.');
           setIsLoading(false);
           return;
         }
@@ -175,10 +175,10 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             setBlockedAccount(shop);
           }
         } else {
-          setError('Invalid password for this shop register. (Hint: darzi123)');
+          setError('Invalid password for this shop register.');
         }
       } else {
-        setError('No active shop found with this email. (Hint: Use default "tailor@darzi.pk" or register your shop)');
+        setError('No active shop found with this email.');
       }
       setIsLoading(false);
     }, 600);
@@ -582,12 +582,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xxs pt-1 text-slate-400" id="login-helper-links">
-                      <div>
-                        Default: <span className="font-mono text-emerald-800 bg-emerald-50 px-1 py-0.5 rounded font-bold">darzi123</span>
-                      </div>
-                      <span className="font-medium text-slate-400">Quick Access Verified</span>
-                    </div>
+
 
                     <button
                       id="login-submit-btn"
