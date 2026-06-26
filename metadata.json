@@ -1,0 +1,6 @@
+{
+  "name": "Tailor Management",
+  "description": "A modern, professional, mobile-first Tailor Management Web App for Pakistani tailoring shops.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
