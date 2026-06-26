@@ -8,26 +8,33 @@
     "utilities"
   ],
   "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "e9324021-9989-4977-83eb-59828d5d9099",
   "start_url": "/?source=pwa",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#064e3b",
   "theme_color": "#064e3b",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "maskable-icon.png",
+      "src": "/maskable-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -35,14 +42,14 @@
   ],
   "screenshots": [
     {
-      "src": "screenshot-mobile.png",
+      "src": "/screenshot-mobile.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Traditional Tailor Register Mobile view"
     },
     {
-      "src": "screenshot-desktop.png",
+      "src": "/screenshot-desktop.png",
       "sizes": "1280x800",
       "type": "image/png",
       "form_factor": "wide",
@@ -57,7 +64,7 @@
       "url": "/?action=add-customer",
       "icons": [
         {
-          "src": "icon-192.png",
+          "src": "/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -69,7 +76,7 @@
       "url": "/?action=history",
       "icons": [
         {
-          "src": "icon-192.png",
+          "src": "/icon-192.png",
           "sizes": "192x192"
         }
       ]
