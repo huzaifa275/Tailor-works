@@ -1,4 +1,4 @@
-import { Customer, OrderStatus, ShopAccount } from './types';
+import { Customer, OrderStatus, ShopAccount, UserAccount } from './types';
 
 const STORAGE_KEY = 'tailor_management_customers';
 const AUTH_KEY = 'tailor_management_auth';
@@ -101,6 +101,24 @@ export function deleteCustomer(id: string): void {
 
 // Shops database management
 const SHOPS_KEY = 'tailor_management_shops';
+const USERS_KEY = 'tailor_management_users';
+
+export function getUsers(): UserAccount[] {
+  const data = localStorage.getItem(USERS_KEY);
+  if (!data) {
+    return [];
+  }
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    console.error('Failed to parse users from localStorage', e);
+    return [];
+  }
+}
+
+export function saveUsers(users: UserAccount[]): void {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
 
 const SEED_SHOPS: ShopAccount[] = [];
 
@@ -169,8 +187,27 @@ export function saveShops(shops: ShopAccount[]): void {
 
 export function addShop(shop: Omit<ShopAccount, 'id' | 'createdAt'>): ShopAccount {
   const shops = getShops();
+  const users = getUsers();
   const signupDate = new Date();
   
+  const emailLower = shop.email.trim().toLowerCase();
+
+  // Create or retrieve corresponding UserAccount (Single Transaction Setup)
+  let user = users.find(u => u.email.toLowerCase() === emailLower);
+  const userId = user ? user.id : 'user-' + Date.now();
+  if (!user) {
+    user = {
+      id: userId,
+      email: emailLower,
+      password: shop.password || 'darzi123',
+      fullName: shop.fullName.trim(),
+      mobileNumber: shop.mobileNumber.trim(),
+      createdAt: signupDate.toISOString()
+    };
+    users.unshift(user);
+    saveUsers(users);
+  }
+
   // Trial Duration = 3 Days
   const expiryDate = new Date(signupDate);
   expiryDate.setDate(signupDate.getDate() + 3);
@@ -178,10 +215,12 @@ export function addShop(shop: Omit<ShopAccount, 'id' | 'createdAt'>): ShopAccoun
 
   const newShop: ShopAccount = {
     ...shop,
+    email: emailLower,
+    userId: userId, // Link user ID with shop/workspace
     id: 'shop-' + Date.now(),
-    status: 'Active', // Automatically assign Active Status
-    plan: 'Free Trial', // Automatically assign Trial Plan
-    expiryDate: expiryStr, // Expiry Date = Signup Date + 3 Days
+    status: shop.status || 'Active', // Automatically assign Active Status
+    plan: shop.plan || 'Free Trial', // Automatically assign Trial Plan
+    expiryDate: shop.expiryDate || (shop.plan === 'Monthly Plan' ? undefined : expiryStr),
     createdAt: signupDate.toISOString()
   };
   shops.unshift(newShop);

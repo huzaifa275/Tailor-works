@@ -52,8 +52,18 @@ export interface Customer {
   completedAt?: string; // "YYYY-MM-DD"
 }
 
+export interface UserAccount {
+  id: string;
+  email: string;
+  password?: string;
+  fullName: string;
+  mobileNumber: string;
+  createdAt: string;
+}
+
 export interface ShopAccount {
   id: string;
+  userId?: string; // Linked user ID
   shopName: string;
   fullName: string;
   mobileNumber: string;

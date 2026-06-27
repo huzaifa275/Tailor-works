@@ -5,7 +5,7 @@ import {
   Store, User, Phone, CheckCircle2, Coins, Clock, ArrowRight, HelpCircle,
   Upload, Database
 } from 'lucide-react';
-import { getShops, addShop, loginUser, updateShop, getBrowserDeviceId, importShopBackup } from '../db';
+import { getShops, addShop, loginUser, updateShop, getBrowserDeviceId, importShopBackup, getUsers } from '../db';
 import { ShopAccount } from '../types';
 
 
@@ -151,11 +151,28 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       }
 
       // 2. Regular shop user authentication
-      const shops = getShops();
-      const shop = shops.find(s => s.email.toLowerCase() === inputVal);
+      const users = getUsers();
+      const userRecord = users.find(u => u.email.toLowerCase() === inputVal);
       
-      if (shop) {
-        if (shop.password === password || password === 'darzi123') { // Fallback standard password
+      if (userRecord) {
+        if (userRecord.password === password || password === 'darzi123') { // Fallback standard password
+          // Find the shop linked to this user ID
+          const shops = getShops();
+          let shop = shops.find(s => s.userId === userRecord.id || s.email.toLowerCase() === inputVal);
+          
+          if (!shop) {
+            // Fallback: automatically create their shop database and default settings if missing
+            shop = addShop({
+              shopName: userRecord.fullName + "'s Boutique",
+              fullName: userRecord.fullName,
+              mobileNumber: userRecord.mobileNumber,
+              email: userRecord.email,
+              password: userRecord.password,
+              status: 'Active',
+              plan: 'Free Trial'
+            });
+          }
+
           // One Device Security Check
           const currentDeviceId = getBrowserDeviceId();
           if (!shop.deviceId) {
@@ -178,7 +195,33 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           setError('Invalid password for this shop register.');
         }
       } else {
-        setError('No active shop found with this email.');
+        // Fallback: check shops directly (legacy fallback for pre-existing shops)
+        const shops = getShops();
+        const shop = shops.find(s => s.email.toLowerCase() === inputVal);
+        if (shop) {
+          if (shop.password === password || password === 'darzi123') {
+            // One Device Security Check
+            const currentDeviceId = getBrowserDeviceId();
+            if (!shop.deviceId) {
+              shop.deviceId = currentDeviceId;
+              updateShop(shop.id, { deviceId: currentDeviceId });
+            } else if (shop.deviceId !== currentDeviceId) {
+              setError("Account already active on another device. Admin approval required for device change.");
+              setIsLoading(false);
+              return;
+            }
+
+            if (shop.status === 'Active') {
+              onLoginSuccess(shop.email);
+            } else {
+              setBlockedAccount(shop);
+            }
+          } else {
+            setError('Invalid password for this shop register.');
+          }
+        } else {
+          setError('No active shop found with this email.');
+        }
       }
       setIsLoading(false);
     }, 600);
@@ -212,7 +255,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         shopName: signupShopName.trim(),
         fullName: signupFullName.trim(),
         mobileNumber: signupMobile.trim(),
-        email: signupEmail.trim(),
+        email: signupEmail.trim().toLowerCase(),
         password: signupPassword,
         status: 'Active',
         plan: 'Free Trial'
