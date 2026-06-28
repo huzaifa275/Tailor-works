@@ -1,6 +1,6 @@
 {
-  "name": "Tailor Management",
-  "description": "A modern, professional, mobile-first Tailor Management Web App for Pakistani tailoring shops.",
+  "name": "Expert Tailor",
+  "description": "Expert Tailor – Smart Tailor Management System. A modern, professional, mobile-first Tailor Management Web App.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

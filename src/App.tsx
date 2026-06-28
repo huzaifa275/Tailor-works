@@ -69,9 +69,9 @@ export default function App() {
   // Sync tab title with the custom shop name
   useEffect(() => {
     if (currentShop) {
-      document.title = `${currentShop.shopName} - Digital Tailoring Register`;
+      document.title = `${currentShop.shopName} - Expert Tailor`;
     } else {
-      document.title = 'Darzi Ledger - Digital Tailoring Register';
+      document.title = 'Expert Tailor - Smart Tailor Management System';
     }
   }, [currentShop]);
 
